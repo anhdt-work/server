@@ -1,7 +1,6 @@
 def format_response_as_html(raw_text: str) -> str:
     # Example transformation for code blocks and text
     raw_text = raw_text.replace("\r", "")
-    print(raw_text)
     lines = raw_text.split("\n")
     inside_code_block = False
     formatted_lines = []
@@ -14,7 +13,7 @@ def format_response_as_html(raw_text: str) -> str:
                 formatted_lines.append("<pre><code>")
                 inside_code_block = True
         else:
-            formatted_lines.append(f"<p>{line}</p>")
+            formatted_lines.append(f"<div>{line}</div>")
     rs = "".join(formatted_lines)
     print(rs)
     return rs
