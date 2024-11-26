@@ -3,17 +3,25 @@ from langchain_core.prompts import ChatPromptTemplate
 from config.utils import model
 from fastapi import APIRouter
 
+from helper.format import format_response_as_html
 from models.input import InputModel
-from routers.explain import template
 
 router = APIRouter()
 
+chat_prompt_template = """
+You are a Chat bot AI Assistant. You are asked to generate a response to the given question.
+Answer as short as possible.
+Here is the question: {question}
+"""
 
-prompt = ChatPromptTemplate.from_template(template)
+prompt = ChatPromptTemplate.from_template(chat_prompt_template)
 
 chain = prompt | model
 
 
 @router.post("/chat")
 async def generate_chat(input_model: InputModel):
-    return chain.invoke({"question": input_model.input})
+    print(input_model.input)
+    response = chain.invoke({"question": input_model.input})
+    print(format_response_as_html(response))
+    return format_response_as_html(response)

@@ -1,3 +1,6 @@
-from langchain_community.llms import Ollama
+# from langchain_ollama import OllamaLLM
+from langchain_ollama.llms import OllamaLLM
 
-model = Ollama(model="deepseek-coder-v2:16b-lite-instruct-q2_K")
+from models.output import Output
+
+model = OllamaLLM(model="deepseek-coder-v2:16b-lite-instruct-q5_K_M")
