@@ -21,7 +21,5 @@ chain = prompt | model
 
 @router.post("/chat")
 async def generate_chat(input_model: InputModel):
-    print(input_model.input)
     response = chain.invoke({"question": input_model.input})
-    print(format_response_as_html(response))
     return format_response_as_html(response)

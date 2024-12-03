@@ -8,8 +8,8 @@ from models.input import InputModel
 
 router = APIRouter()
 
-fix_prompt_template = """ You are asked to fix the code, please focus on function name to make it correct. 
-and format your corrected code using triple backticks (```).
+fix_prompt_template = """ You are asked to fix the code, please focus on function name to 
+generate code suitable for the given function name and format your corrected code using triple backticks (```).
 Here is the code need to fix:
 {code}
 """
