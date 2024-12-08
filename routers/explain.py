@@ -1,6 +1,6 @@
-from langchain_core.prompts import ChatPromptTemplate
-
-from config.utils import model
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, AIMessage
+from config.utils import model, clean_chat_history, chat_history
 from fastapi import APIRouter
 
 from helper.format import format_response_as_html
@@ -8,18 +8,26 @@ from models.input import InputModel
 
 router = APIRouter()
 
-explain_prompt_template = """
-You are asked to explain the code detail so a student can understand
-the code. Answer as short as possible. Put the code inside triple backticks (```) with comment explain.
-Here is the code snippet: {code}
-"""
+prompt_template = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are asked to explain the code detail. "
+            "Answer as short as possible and put the code between triple backticks (```) with comment explain.",
+        ),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "Here is the code you need to explain: {code}"),
+    ]
+)
 
-prompt = ChatPromptTemplate.from_template(explain_prompt_template)
 
-chain = prompt | model
+chain = prompt_template | model
 
 
 @router.post("/explain")
 async def generate_explain_code(input_model: InputModel):
-    response = chain.invoke({"code": input_model.input})
+    response = chain.invoke({"code": input_model.input, "chat_history": chat_history})
+    clean_chat_history()
+    chat_history.append(HumanMessage(content=input_model.input))
+    chat_history.append(AIMessage(content=response))
     return format_response_as_html(response)

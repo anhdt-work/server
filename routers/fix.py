@@ -1,25 +1,32 @@
-from langchain_core.prompts import ChatPromptTemplate
-
-from config.utils import model
+from config.utils import model, clean_chat_history, chat_history
 from fastapi import APIRouter
 
 from helper.format import format_response_as_html
 from models.input import InputModel
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, AIMessage
 
 router = APIRouter()
+prompt_template = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are asked to fix the code."
+            "Answer as short as possible and put the code between triple backticks (```).",
+        ),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "Here is the code: {code}"),
+    ]
+)
 
-fix_prompt_template = """ You are asked to fix the code, please focus on function name to 
-generate code suitable for the given function name and format your corrected code using triple backticks (```).
-Here is the code need to fix:
-{code}
-"""
 
-prompt = ChatPromptTemplate.from_template(fix_prompt_template)
-
-chain = prompt | model
+chain = prompt_template | model
 
 
 @router.post("/fix")
 async def generate_fix_code(input_model: InputModel):
-    response = chain.invoke({"code": input_model.input})
+    response = chain.invoke({"code": input_model.input, "chat_history": chat_history})
+    clean_chat_history()
+    chat_history.append(HumanMessage(content=input_model.input))
+    chat_history.append(AIMessage(content=response))
     return format_response_as_html(response)
