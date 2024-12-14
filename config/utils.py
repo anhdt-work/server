@@ -1,6 +1,9 @@
-from langchain_ollama.llms import OllamaLLM
+import os
 
-model = OllamaLLM(model="deepseek-coder-v2:16b-lite-instruct-q5_K_M")
+from langchain_ollama.llms import OllamaLLM
+from dotenv import load_dotenv
+load_dotenv()
+model = OllamaLLM(model=os.getenv("MODEL"))
 
 chat_history = []
 
